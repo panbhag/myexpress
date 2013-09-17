@@ -1,46 +1,43 @@
-
-
-function middleware()
-{
+function middleware() {
     var middleware = [];
 
     var currentMiddleware = 0;     //TODO: this should be an new variable for every request,check
 
-    var run = function(req,res, pathHandler){
-        currentMiddleware = -1;
-        nextMiddleware();
+    var run = function(req, res) {
+        var next = createNext(req, res, middleware);
+        next();
     }
 
-    var nextMiddleware = function()
-    {
-        currentMiddleware = currentMiddleware +1;
+    var createNext = function(req, res, middleware) {
+        var currentMiddleware = -1;
 
-        var nextHandle = middleware[currentMiddleware];
-        if(nextHandle)
-        {
-          nextHandle(req,res,nextMiddleware)
+        var next = function() {
+            currentMiddleware = currentMiddleware + 1;
+            var nextHandle = middleware[currentMiddleware];
+            if (nextHandle) {
+                nextHandle(req, res, next)
+            }
+            else {
+                req.handler(req, res);
+            }
         }
-        else
-        {
-          pathHandler(req,res);
-        }
+
+        return next
     }
 
-    var use = function(handler)
-     {
 
-          middleware.push(handler)
 
-     }
+    var use = function(handler) {
+
+        middleware.push(handler)
+
+    }
 
 
     return {use:use,run:run}
 
 
-
-
 }
-
 
 
 module.exports = middleware();

@@ -15,25 +15,27 @@ function myExpress()
     request(req);
     response(res);
 
-    var pathHandler = routes.match(req);
+    var match = routes.match(req);
 
-
-    if(!pathHandler){
-      pathHandler= function(req,res){
+    if(match){
+        req.params = match.params;
+        req.handler = match.handler
+    }
+    else
+    {
+      req.handler =  function(req,res){
           res.writeHead(200);
           res.end('Route not found');
       }
     }
-    middleware.run(req,res,function(){
-          pathHandler(req,res);
-    })
+    middleware.run(req,res);
 
 
     });
 
-   self.listen = function(port){
+   var listen = function(port){
    
-      self.server.listen(port);
+      server.listen(port);
       console.log("listening on port : " , port);
    
    }
